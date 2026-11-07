@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>청렴 O/X 퀴즈</title>
+  <style>
+    :root {
+      --navy: #17324d;
+      --blue: #2f6f9f;
+      --light: #eef5fa;
+      --gold: #f2bd55;
+      --green: #23865b;
+      --red: #c44f4f;
+      --ink: #263746;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 24px 16px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, #edf4f8, #fff8e9);
+      color: var(--ink);
+      font-family: "Pretendard", "Noto Sans KR", "Malgun Gothic", sans-serif;
+    }
+    .app {
+      width: min(100%, 720px);
+      background: #fff;
+      border-radius: 26px;
+      padding: clamp(22px, 5vw, 42px);
+      box-shadow: 0 18px 55px rgba(27, 55, 78, .13);
+      border: 1px solid rgba(23, 50, 77, .08);
+    }
+    .topline {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+      color: #6b7d8b;
+      font-size: 14px;
+      font-weight: 700;
+    }
+    .tag {
+      display: inline-block;
+      padding: 7px 12px;
+      border-radius: 999px;
+      background: #fff2d6;
+      color: #805512;
+    }
+    h1 {
+      margin: 0;
+      color: var(--navy);
+      text-align: center;
+      font-size: clamp(30px, 6vw, 46px);
+      letter-spacing: -1.5px;
+    }
+    .subtitle {
+      text-align: center;
+      margin: 12px 0 28px;
+      color: #647887;
+      line-height: 1.6;
+      font-size: 16px;
+    }
+    .progress-wrap {
+      height: 10px;
+      border-radius: 99px;
+      background: #e9eff3;
+      overflow: hidden;
+      margin: 0 0 28px;
+    }
+    .progress {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #2f6f9f, #62a4c8);
+      border-radius: inherit;
+      transition: width .25s ease;
+    }
+    .question-card {
+      background: var(--light);
+      border-radius: 20px;
+      padding: clamp(24px, 5vw, 38px) 22px;
+      text-align: center;
+      min-height: 210px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 16px;
+    }
+    .q-number {
+      color: var(--blue);
+      font-size: 15px;
+      font-weight: 800;
+    }
+    .question {
+      margin: 0;
+      color: var(--navy);
+      font-size: clamp(21px, 4vw, 29px);
+      line-height: 1.55;
+      word-break: keep-all;
+      font-weight: 800;
+    }
+    .buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 24px;
+    }
+    button {
+      border: 0;
+      cursor: pointer;
+      font: inherit;
+      font-weight: 900;
+      transition: transform .12s ease, filter .12s ease, box-shadow .12s ease;
+    }
+    button:focus-visible {
+      outline: 4px solid #f2bd55;
+      outline-offset: 3px;
+    }
+    .answer {
+      min-height: 100px;
+      border-radius: 18px;
+      color: white;
+      font-size: clamp(30px, 6vw, 42px);
+      box-shadow: 0 7px 0 rgba(0,0,0,.09);
+    }
+    .answer:hover { transform: translateY(-2px); filter: brightness(1.04); }
+    .answer:active { transform: translateY(3px); box-shadow: none; }
+    .o-btn { background: #2f8b69; }
+    .x-btn { background: #d65d5d; }
+    .feedback {
+      display: none;
+      margin-top: 20px;
+      border-radius: 16px;
+      padding: 17px 18px;
+      text-align: center;
+      font-weight: 800;
+      line-height: 1.5;
+    }
+    .feedback.correct { display: block; background: #e8f6ee; color: #176b45; }
+    .feedback.wrong { display: block; background: #fff0ef; color: #a33c3c; }
+    .next-row { display: flex; justify-content: center; margin-top: 20px; }
+    .next-btn, .start-btn, .restart-btn {
+      background: var(--navy);
+      color: white;
+      border-radius: 999px;
+      padding: 15px 34px;
+      font-size: 18px;
+      box-shadow: 0 5px 0 #0d2235;
+    }
+    .next-btn:hover, .start-btn:hover, .restart-btn:hover { filter: brightness(1.12); }
+    .next-btn:active, .start-btn:active, .restart-btn:active { transform: translateY(3px); box-shadow: none; }
+    .hidden { display: none !important; }
+    .start-screen, .result-screen { text-align: center; }
+    .big-icon { font-size: 66px; margin: 8px 0 14px; }
+    .start-screen h2, .result-screen h2 {
+      margin: 0;
+      color: var(--navy);
+      font-size: clamp(26px, 5vw, 36px);
+    }
+    .start-screen p, .result-screen p {
+      color: #647887;
+      line-height: 1.7;
+      font-size: 17px;
+      margin: 14px auto 26px;
+      max-width: 490px;
+      word-break: keep-all;
+    }
+    .score {
+      color: var(--blue);
+      font-size: clamp(48px, 10vw, 72px);
+      font-weight: 900;
+      margin: 18px 0 8px;
+    }
+    .result-label {
+      display: inline-block;
+      padding: 10px 18px;
+      border-radius: 999px;
+      background: #fff2d6;
+      color: #805512;
+      font-weight: 900;
+      font-size: 18px;
+      margin: 8px 0 18px;
+    }
+    .small-note { color: #81909b; font-size: 13px; margin-top: 22px; }
+    @media (max-width: 480px) {
+      body { padding: 12px; }
+      .app { border-radius: 20px; padding: 22px 16px; }
+      .buttons { gap: 10px; }
+      .answer { min-height: 82px; }
+      .question-card { min-height: 230px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section id="startScreen" class="start-screen">
+      <div class="big-icon">⚖️</div>
+      <span class="tag">청렴캠페인 특별 이벤트</span>
+      <h1 style="margin-top:18px;">청렴 O/X 퀴즈</h1>
+      <p>정직과 공정에 관한 퀴즈 10문제에 도전해 보세요!<br>
+      5문제 이상 맞히면 추억의 뽑기왕에 도전할 수 있어요.</p>
+      <button class="start-btn" id="startBtn">퀴즈 시작하기</button>
+      <div class="small-note">총 10문제 · O 또는 X 선택</div>
+    </section>
+
+    <section id="quizScreen" class="hidden">
+      <div class="topline">
+        <span class="tag">청렴 O/X 퀴즈</span>
+        <span id="scoreNow">현재 점수 0점</span>
+      </div>
+      <div class="progress-wrap"><div class="progress" id="progress"></div></div>
+      <div class="question-card">
+        <div class="q-number" id="qNumber">QUESTION 1 / 10</div>
+        <p class="question" id="questionText"></p>
+      </div>
+      <div class="buttons">
+        <button class="answer o-btn" id="oBtn" aria-label="O를 선택">⭕ O</button>
+        <button class="answer x-btn" id="xBtn" aria-label="X를 선택">❌ X</button>
+      </div>
+      <div id="feedback" class="feedback" role="status" aria-live="polite"></div>
+      <div class="next-row">
+        <button id="nextBtn" class="next-btn hidden">다음 문제</button>
+      </div>
+    </section>
+
+    <section id="resultScreen" class="result-screen hidden">
+      <div class="big-icon" id="resultIcon">🎉</div>
+      <h2>청렴 퀴즈 결과!</h2>
+      <div class="score" id="finalScore">0 / 10</div>
+      <div class="result-label" id="resultLabel"></div>
+      <p id="resultMessage"></p>
+      <button class="restart-btn" id="restartBtn">처음으로 돌아가기</button>
+      <div class="small-note">정직한 마음, 공정한 행동! 청렴은 작은 실천에서 시작됩니다.</div>
+    </section>
+  </main>
+
+  <script>
+    const questions = [
+      { text: "친구가 시험 답을 알려 달라고 해도 정직하게 행동하는 것이 청렴이다.", answer: "O" },
+      { text: "친한 친구의 부탁이라면 규칙을 어겨도 괜찮다.", answer: "X" },
+      { text: "다른 사람의 물건을 허락 없이 사용하는 것은 청렴한 행동이다.", answer: "X" },
+      { text: "자신에게 불리하더라도 잘못한 일은 솔직하게 인정해야 한다.", answer: "O" },
+      { text: "선생님께 잘 보이기 위해 비싼 선물을 드리는 것은 괜찮다.", answer: "X" },
+      { text: "맡은 일을 책임감 있게 끝까지 해내는 것도 청렴의 한 모습이다.", answer: "O" },
+      { text: "친구와 함께 정한 규칙이라도 자신에게 불리하면 지키지 않아도 된다.", answer: "X" },
+      { text: "다른 사람의 의견을 존중하고 공정하게 대하는 것도 청렴과 관련이 있다.", answer: "O" },
+      { text: "아무도 보지 않는 곳에서는 규칙을 어겨도 괜찮다.", answer: "X" },
+      { text: "작은 거짓말이라도 반복되면 다른 사람의 신뢰를 잃을 수 있다.", answer: "O" }
+    ];
+
+    let current = 0;
+    let score = 0;
+    let answered = false;
+
+    const startScreen = document.getElementById("startScreen");
+    const quizScreen = document.getElementById("quizScreen");
+    const resultScreen = document.getElementById("resultScreen");
+    const questionText = document.getElementById("questionText");
+    const qNumber = document.getElementById("qNumber");
+    const feedback = document.getElementById("feedback");
+    const nextBtn = document.getElementById("nextBtn");
+    const oBtn = document.getElementById("oBtn");
+    const xBtn = document.getElementById("xBtn");
+
+    function showScreen(screen) {
+      [startScreen, quizScreen, resultScreen].forEach(s => s.classList.add("hidden"));
+      screen.classList.remove("hidden");
+    }
+
+    function startQuiz() {
+      current = 0;
+      score = 0;
+      showScreen(quizScreen);
+      showQuestion();
+    }
+
+    function showQuestion() {
+      answered = false;
+      const q = questions[current];
+      qNumber.textContent = `QUESTION ${current + 1} / ${questions.length}`;
+      questionText.textContent = q.text;
+      document.getElementById("scoreNow").textContent = `현재 점수 ${score}점`;
+      document.getElementById("progress").style.width = `${(current / questions.length) * 100}%`;
+      feedback.className = "feedback";
+      feedback.textContent = "";
+      nextBtn.classList.add("hidden");
+      oBtn.disabled = false;
+      xBtn.disabled = false;
+      oBtn.style.opacity = "1";
+      xBtn.style.opacity = "1";
+      nextBtn.textContent = current === questions.length - 1 ? "결과 확인하기" : "다음 문제";
+    }
+
+    function choose(value) {
+      if (answered) return;
+      answered = true;
+      const correct = value === questions[current].answer;
+      if (correct) score++;
+      feedback.textContent = correct ? "정답입니다! 참 잘했어요. 🎉" : "아쉽지만 오답이에요! 다음 문제에 도전해 보세요.";
+      feedback.className = `feedback ${correct ? "correct" : "wrong"}`;
+      oBtn.disabled = true;
+      xBtn.disabled = true;
+      if (value === "O") oBtn.style.opacity = ".55";
+      else xBtn.style.opacity = ".55";
+      document.getElementById("scoreNow").textContent = `현재 점수 ${score}점`;
+      nextBtn.classList.remove("hidden");
+    }
+
+    function showResult() {
+      showScreen(resultScreen);
+      document.getElementById("progress").style.width = "100%";
+      document.getElementById("finalScore").textContent = `${score} / 10`;
+      const passed = score >= 5;
+      document.getElementById("resultIcon").textContent = passed ? "🎊" : "💪";
+      document.getElementById("resultLabel").textContent = passed ? "뽑기왕 도전 가능!" : "아쉽지만 다음 기회에!";
+      document.getElementById("resultMessage").textContent = passed
+        ? "축하합니다! 청렴 퀴즈를 통과했습니다. 이제 추억의 뽑기왕에 도전하세요!"
+        : "조금 아쉽네요! 청렴의 의미를 다시 생각해 보고 다음 기회에 꼭 도전해 보세요.";
+    }
+
+    oBtn.addEventListener("click", () => choose("O"));
+    xBtn.addEventListener("click", () => choose("X"));
+    document.getElementById("startBtn").addEventListener("click", startQuiz);
+    document.getElementById("restartBtn").addEventListener("click", () => showScreen(startScreen));
+    nextBtn.addEventListener("click", () => {
+      if (current < questions.length - 1) {
+        current++;
+        showQuestion();
+      } else {
+        showResult();
+      }
+    });
+  </script>
+</body>
+</html>
